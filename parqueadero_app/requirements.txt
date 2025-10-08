@@ -1,0 +1,3 @@
+# Dependencias principales para el sistema de parqueadero
+openpyxl
+reportlab
