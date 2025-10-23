@@ -5,7 +5,7 @@ a = Analysis(
     ['run_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('parqueadero_app', 'parqueadero_app')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

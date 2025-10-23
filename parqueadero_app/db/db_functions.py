@@ -24,10 +24,15 @@ def registrar_entrada(placa: str, tipo: str, hora_entrada: str, tarifa_id: int =
 		else:
 			db.c.execute("INSERT INTO vehiculos (placa, tipo) VALUES (?, ?)", (placa, tipo))
 			vehiculo_id = db.c.lastrowid
+		# Obtener el último número de ticket y sumar 1
+		db.c.execute("SELECT MAX(numero_ticket) FROM tickets")
+		max_num = db.c.fetchone()[0]
+		numero_ticket = 1 if max_num is None else max_num + 1
 		# Insertar ticket
-		db.c.execute("INSERT INTO tickets (vehiculo_id, hora_entrada, tarifa_id) VALUES (?, ?, ?)", (vehiculo_id, hora_entrada, tarifa_id))
+		db.c.execute("INSERT INTO tickets (numero_ticket, vehiculo_id, hora_entrada, tarifa_id) VALUES (?, ?, ?, ?)", (numero_ticket, vehiculo_id, hora_entrada, tarifa_id))
+		return numero_ticket
 
-def registrar_salida(placa: str, hora_salida: str, cobro: float):
+def registrar_salida(placa: str, hora_salida: str, cobro: float, pago_recibido: float = None, cambio: float = None):
 	with DBConnection() as db:
 		# Buscar ticket abierto
 		db.c.execute("""
@@ -39,7 +44,7 @@ def registrar_salida(placa: str, hora_salida: str, cobro: float):
 		row = db.c.fetchone()
 		if row:
 			ticket_id = row[0]
-			db.c.execute("UPDATE tickets SET hora_salida = ?, cobro = ? WHERE id = ?", (hora_salida, cobro, ticket_id))
+			db.c.execute("UPDATE tickets SET hora_salida = ?, cobro = ?, pago_recibido = ?, cambio = ? WHERE id = ?", (hora_salida, cobro, pago_recibido, cambio, ticket_id))
 
 def guardar_tarifas(tipo_vehiculo: str, valor_hora: float, valor_fraccion: float):
 	with DBConnection() as db:
@@ -71,3 +76,26 @@ def obtener_configuracion():
 		if row:
 			return {"nombre": row[0], "nit": row[1], "direccion": row[2], "telefono": row[3]}
 		return {"nombre": "PARQUEADERO", "nit": "", "direccion": "", "telefono": ""}
+
+def obtener_tickets_activos():
+	with DBConnection() as db:
+		db.c.execute("""
+			SELECT t.numero_ticket, v.placa, v.tipo, t.hora_entrada, t.hora_salida
+			FROM tickets t
+			JOIN vehiculos v ON t.vehiculo_id = v.id
+			ORDER BY t.hora_entrada DESC
+			LIMIT 50
+		""")
+		return db.c.fetchall()
+
+def buscar_ticket_por_placa(placa: str):
+	with DBConnection() as db:
+		db.c.execute("""
+			SELECT t.numero_ticket, v.placa, v.tipo, t.hora_entrada, t.hora_salida, t.cobro
+			FROM tickets t
+			JOIN vehiculos v ON t.vehiculo_id = v.id
+			WHERE v.placa = ?
+			ORDER BY t.hora_entrada DESC
+			LIMIT 10
+		""", (placa,))
+		return db.c.fetchall()

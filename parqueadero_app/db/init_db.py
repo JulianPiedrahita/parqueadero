@@ -29,11 +29,14 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero_ticket INTEGER,
             vehiculo_id INTEGER NOT NULL,
             hora_entrada TEXT NOT NULL,
             hora_salida TEXT,
             tarifa_id INTEGER,
             cobro REAL,
+            pago_recibido REAL,
+            cambio REAL,
             FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id),
             FOREIGN KEY (tarifa_id) REFERENCES tarifas(id)
         )

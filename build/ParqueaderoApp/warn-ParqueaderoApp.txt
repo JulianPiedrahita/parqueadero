@@ -14,9 +14,9 @@ Types if import:
 IMPORTANT: Do NOT post this list to the issue-tracker. Use it as a basis for
             tracking down the missing module yourself. Thanks!
 
-missing module named pwd - imported by posixpath (delayed, conditional, optional), shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), setuptools._distutils.util (delayed, conditional, optional), netrc (delayed, conditional), getpass (delayed), setuptools._vendor.backports.tarfile (optional), setuptools._distutils.archive_util (optional), http.server (delayed, optional)
+missing module named pwd - imported by posixpath (delayed, conditional, optional), shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), netrc (delayed, conditional), getpass (delayed), setuptools._distutils.util (delayed, conditional, optional), setuptools._vendor.backports.tarfile (optional), setuptools._distutils.archive_util (optional), http.server (delayed, optional)
 missing module named grp - imported by shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), setuptools._vendor.backports.tarfile (optional), setuptools._distutils.archive_util (optional)
-missing module named posix - imported by posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional), os (conditional, optional)
+missing module named posix - imported by os (conditional, optional), shutil (conditional), importlib._bootstrap_external (conditional), posixpath (optional)
 missing module named resource - imported by posix (top-level)
 missing module named _frozen_importlib_external - imported by importlib._bootstrap (delayed), importlib (optional), importlib.abc (optional), zipimport (top-level)
 excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional), zipimport (top-level)
@@ -52,9 +52,9 @@ missing module named importlib_resources - imported by setuptools._vendor.jaraco
 missing module named trove_classifiers - imported by setuptools.config._validate_pyproject.formats (optional)
 missing module named pyimod02_importers - imported by C:\Users\piedr\Documents\Personal\parqueadero\.venv\Lib\site-packages\PyInstaller\hooks\rthooks\pyi_rth_pkgutil.py (delayed)
 missing module named pandas - imported by pymupdf.table (delayed, optional)
-missing module named fontTools - imported by pymupdf.utils (delayed, optional)
 missing module named cppyy - imported by pymupdf (delayed, conditional)
 missing module named pymupdf_fonts - imported by pymupdf (delayed, conditional, optional)
+missing module named fontTools - imported by pymupdf (delayed, optional)
 missing module named mupdf - imported by pymupdf (conditional, optional), pymupdf.utils (optional)
 missing module named __builtin__ - imported by pymupdf.extra (optional), pymupdf.mupdf (optional)
 missing module named mupdf_cppyy - imported by pymupdf (conditional)

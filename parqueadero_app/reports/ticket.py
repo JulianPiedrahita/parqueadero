@@ -1,19 +1,15 @@
 """
-Generación de ticket con código de barras para impresión.
+Generación de ticket para impresión.
 """
 from reportlab.lib.pagesizes import A7
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
-from barcode import Code128
-from barcode.writer import ImageWriter
-from PIL import Image
-import io
 import os
 from parqueadero_app.db import db_functions as db
 
-def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, ticket_id=None, ruta="ticket.pdf", tarifa_hora=None, tiempo_total=None):
+def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, ticket_id=None, ruta="ticket.pdf", tarifa_hora=None, tiempo_total=None, pago_recibido=None, cambio=None, numero_ticket=None):
     """
-    Genera un ticket PDF con código de barras.
+    Genera un ticket PDF.
     
     Args:
         placa: Placa del vehículo (en mayúsculas)
@@ -25,6 +21,9 @@ def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, 
         ruta: Ruta donde guardar el PDF
         tarifa_hora: Valor por hora (opcional)
         tiempo_total: Tiempo total en formato texto (opcional)
+        pago_recibido: Valor con que paga el cliente (opcional)
+        cambio: Cambio a devolver (opcional)
+        numero_ticket: Número de ticket de 4 dígitos (opcional)
     """
     # Obtener configuración del parqueadero
     config = db.obtener_configuracion()
@@ -53,6 +52,12 @@ def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, 
     c.line(10*mm, y_pos, 64*mm, y_pos)
     y_pos -= 4*mm
     
+    # Número de ticket
+    if numero_ticket:
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(10*mm, y_pos, f"Ticket N°: {numero_ticket:04d}")
+        y_pos -= 5*mm
+    
     # Datos del ticket
     c.setFont("Helvetica", 9)
     c.drawString(10*mm, y_pos, f"Placa: {placa.upper()}")
@@ -70,7 +75,15 @@ def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, 
             y_pos -= 4*mm
         if valor:
             c.setFont("Helvetica-Bold", 9)
-            c.drawString(10*mm, y_pos, f"TOTAL: ${valor:,.0f}")
+            c.drawString(10*mm, y_pos, f"TOTAL A PAGAR: ${valor:,.0f}")
+            c.setFont("Helvetica", 9)
+            y_pos -= 5*mm
+        if pago_recibido:
+            c.drawString(10*mm, y_pos, f"Pago recibido: ${pago_recibido:,.0f}")
+            y_pos -= 4*mm
+        if cambio is not None:
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(10*mm, y_pos, f"CAMBIO: ${cambio:,.0f}")
             c.setFont("Helvetica", 9)
             y_pos -= 4*mm
     else:
@@ -79,41 +92,17 @@ def generar_ticket_pdf(placa, tipo, hora_entrada, hora_salida=None, valor=None, 
             c.drawString(10*mm, y_pos, f"Tarifa/hora: ${tarifa_hora:,.0f}")
             y_pos -= 4*mm
     
-    if not ticket_id:
-        ticket_id = f"{placa}-{hora_entrada}"
-    
-    # Generar código de barras
-    barcode_img = generar_codigo_barras(ticket_id)
-    c.drawInlineImage(barcode_img, 10*mm, 30*mm, width=50*mm, height=20*mm)
-    c.setFont("Helvetica", 7)
-    c.drawString(10*mm, 25*mm, f"Codigo: {ticket_id}")
-    
     # Descargo de responsabilidad
+    y_pos -= 5*mm
     c.setFont("Helvetica", 6)
     disclaimer = "El parqueadero no se hace responsable por daños,"
     disclaimer2 = "robos o pérdidas de objetos dentro del vehículo."
-    c.drawString(10*mm, 18*mm, disclaimer)
-    c.drawString(10*mm, 15*mm, disclaimer2)
+    c.drawString(10*mm, y_pos, disclaimer)
+    y_pos -= 3*mm
+    c.drawString(10*mm, y_pos, disclaimer2)
     
     c.save()
     return ruta
-
-def generar_codigo_barras(data):
-    """
-    Genera un código de barras Code128 como imagen PIL.
-    
-    Args:
-        data: Texto a codificar en el código de barras
-    
-    Returns:
-        Imagen PIL del código de barras
-    """
-    barcode = Code128(data, writer=ImageWriter())
-    output = io.BytesIO()
-    barcode.write(output, options={"module_height": 10.0, "font_size": 8, "text_distance": 1})
-    output.seek(0)
-    img = Image.open(output)
-    return img
 
 if __name__ == "__main__":
     generar_ticket_pdf("ABC123", "carro", "2025-10-08 08:00:00", valor=5000, ticket_id="ABC123-20251008T0800")
